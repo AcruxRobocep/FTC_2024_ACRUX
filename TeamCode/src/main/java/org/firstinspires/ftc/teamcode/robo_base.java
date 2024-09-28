@@ -17,7 +17,7 @@ public class robo_base extends LinearOpMode {
     DcMotor LF;
     DcMotor LB;
 
-    DcMotor garra;
+
     CRServo inTAKE;
 
     Servo pulse;
@@ -26,7 +26,7 @@ public class robo_base extends LinearOpMode {
     DcMotor extensor;
 
     int maxPosition = -1000;
-    int stateROTOR = 1;
+    int stateROTOR = 0;
 
     double spdGarra = 0.4;
     double horinzontal = 0;
@@ -40,18 +40,20 @@ public class robo_base extends LinearOpMode {
         LF  = hardwareMap.get(DcMotor.class, "M4");
         LB  = hardwareMap.get(DcMotor.class, "M2");
         gm  = hardwareMap.get(DcMotor.class, "M5");
-        garra = hardwareMap.get(DcMotor.class, "M6");
         inTAKE = hardwareMap.get(CRServo.class, "S1");
         pulse = hardwareMap.get(Servo.class, "S2");
-        arm = hardwareMap.get(DcMotor.class, "M5");
-        extensor = hardwareMap.get(DcMotor.class,"M6");
+        arm = hardwareMap.get(DcMotor.class, "M6");
+        extensor = hardwareMap.get(DcMotor.class,"M7");
 
-        gm.setPower(0.5);
+        /*gm.setPower(0.5);
         sleep(3000);
-        gm.setPower(0);
-        sleep(500);
+        gm.setPower(0);*/
+
         gm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         waitForStart();
+        pulse.setPosition(0);
+        sleep(500);
 
         while(opModeIsActive()){
             garraComandos();
@@ -69,10 +71,10 @@ public class robo_base extends LinearOpMode {
 
     public void viperComandos() {
 
-        if(gm.getCurrentPosition() > maxPosition) {
-            if (gamepad2.x) {
+        if(gm.getCurrentPosition() < maxPosition) {
+            if (gamepad2.dpad_up) {
                 gm.setPower(-spdGarra);
-            } else if (gamepad2.b) {
+            } else if (gamepad2.dpad_down) {
                 gm.setPower(spdGarra);
 
             }
@@ -84,19 +86,23 @@ public class robo_base extends LinearOpMode {
 
     public void garraComandos(){
         // In Take
-        if(gamepad2.a){
-            stateROTOR+=1;
-        }
 
-        if(stateROTOR % 2 == 0){
+        if(stateROTOR == 1){
             inTAKE.setPower(1);
-        } else {
+            if(gamepad2.a){
+                stateROTOR = 0;
+            }
+        } else if (stateROTOR == 0){
             inTAKE.setPower(0);
+            if(gamepad2.a){
+                stateROTOR = 1;
+            }
+
         }
 
         // Pulso
         if(gamepad2.dpad_right) {
-            pulse.setPosition(90);
+            pulse.setPosition(1);
 
         } else if (gamepad2.dpad_left) {
             pulse.setPosition(0);
@@ -114,7 +120,7 @@ public class robo_base extends LinearOpMode {
         if(extensor.getCurrentPosition() < maxPosition){
             extensor.setPower(0);
         } else {
-            extensor.setPower(gamepad2.right_stick_y * 0.6);
+            extensor.setPower(gamepad2.right_stick_y * -0.7);
         }
 
 
