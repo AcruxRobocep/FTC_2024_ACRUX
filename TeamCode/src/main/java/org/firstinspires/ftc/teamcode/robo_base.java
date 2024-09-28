@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class robo_base extends LinearOpMode {
@@ -16,12 +18,15 @@ public class robo_base extends LinearOpMode {
     DcMotor LB;
 
     DcMotor garra;
+    CRServo inTAKE;
 
-    int maxPosition = -3200;
-    int midPosition = -2000;
-    int encrementoViper;
-    int minPosition = 0;
-    int constante= 50;
+    Servo pulse;
+
+    DcMotor arm;
+    DcMotor extensor;
+
+    int maxPosition = -1000;
+    int stateROTOR = 1;
 
     double spdGarra = 0.4;
     double horinzontal = 0;
@@ -36,6 +41,11 @@ public class robo_base extends LinearOpMode {
         LB  = hardwareMap.get(DcMotor.class, "M2");
         gm  = hardwareMap.get(DcMotor.class, "M5");
         garra = hardwareMap.get(DcMotor.class, "M6");
+        inTAKE = hardwareMap.get(CRServo.class, "S1");
+        pulse = hardwareMap.get(Servo.class, "S2");
+        arm = hardwareMap.get(DcMotor.class, "M5");
+        extensor = hardwareMap.get(DcMotor.class,"M6");
+
         gm.setPower(0.5);
         sleep(3000);
         gm.setPower(0);
@@ -60,39 +70,51 @@ public class robo_base extends LinearOpMode {
     public void viperComandos() {
 
         if(gm.getCurrentPosition() > maxPosition) {
-            if (gamepad2.dpad_up) {
-                encrementoViper -= constante;
-                gm.setTargetPosition(encrementoViper);
-                gm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            if (gamepad2.x) {
                 gm.setPower(-spdGarra);
-            } else if (gamepad2.dpad_down) {
-                encrementoViper += constante;
-                gm.setTargetPosition(encrementoViper);
-                gm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                gm.setPower(-spdGarra);
+            } else if (gamepad2.b) {
+                gm.setPower(spdGarra);
 
             }
         } else {
-            gm.setTargetPosition(maxPosition);
-            gm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            gm.setPower(-spdGarra);
+            gm.setPower(0);
         }
-
-
-
-
-
-
-
 
     }
 
     public void garraComandos(){
+        // In Take
+        if(gamepad2.a){
+            stateROTOR+=1;
+        }
+
+        if(stateROTOR % 2 == 0){
+            inTAKE.setPower(1);
+        } else {
+            inTAKE.setPower(0);
+        }
+
+        // Pulso
+        if(gamepad2.dpad_right) {
+            pulse.setPosition(90);
+
+        } else if (gamepad2.dpad_left) {
+            pulse.setPosition(0);
+        }
+
+        // Braço
         if(gamepad2.left_trigger > 0) {
-            garra.setPower(gamepad2.left_trigger * -0.4);
+            arm.setPower(gamepad2.left_trigger * -0.4);
         }
         else if(gamepad2.right_trigger > 0) {
-            garra.setPower(gamepad2.right_trigger * 0.4);
+            arm.setPower(gamepad2.right_trigger * 0.4);
+        }
+
+        // Extensor
+        if(extensor.getCurrentPosition() < maxPosition){
+            extensor.setPower(0);
+        } else {
+            extensor.setPower(gamepad2.right_stick_y * 0.6);
         }
 
 
