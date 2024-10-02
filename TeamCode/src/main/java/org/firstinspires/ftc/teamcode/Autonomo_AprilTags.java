@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -50,9 +51,13 @@ public class Autonomo_AprilTags extends LinearOpMode {
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
+        LF.setDirection(DcMotorSimple.Direction.REVERSE);
+        RB.setDirection(DcMotorSimple.Direction.REVERSE);
+
         waitForStart();
         imu.resetYaw();
         while (opModeIsActive()){
+
 
             List<AprilTagDetection> currentDetections = aprilTag.getDetections();
 
@@ -60,9 +65,11 @@ public class Autonomo_AprilTags extends LinearOpMode {
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
             for (AprilTagDetection detection : currentDetections) {
                 if (detection.metadata != null) {
-                    telemetry.addData("Distancia: ", detection.ftcPose.y);
-                    telemetry.addData("Angulação: ", detection.ftcPose.yaw);
-                    telemetry.addData("Arfagem do Robô", orientation.getYaw());
+                        if(detection.ftcPose.y > 100){
+                            move(0.5);
+                    }
+                        move(0);
+
                 } else {
                     telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
                     telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
@@ -72,6 +79,8 @@ public class Autonomo_AprilTags extends LinearOpMode {
                 telemetry.update();
 
             }
+
+
 
 
 
@@ -107,11 +116,12 @@ public class Autonomo_AprilTags extends LinearOpMode {
 
 
     void initDevices() {
-        /*
+
         RF  = hardwareMap.get(DcMotor.class, "M3");
         RB  = hardwareMap.get(DcMotor.class, "M1");
         LF  = hardwareMap.get(DcMotor.class, "M4");
         LB  = hardwareMap.get(DcMotor.class, "M2");
+        /*
         viper = hardwareMap.get(DcMotor.class,"M5");
         pulse = hardwareMap.get(Servo.class,"S1");
         inTake = hardwareMap.get(CRServo.class,"S2");
@@ -123,7 +133,7 @@ public class Autonomo_AprilTags extends LinearOpMode {
 
 
     }
-    /*
+
     void move(double spd){
         RF.setPower(spd);
         RB.setPower(spd);
@@ -133,25 +143,26 @@ public class Autonomo_AprilTags extends LinearOpMode {
 
     void move(double spd,char direction){
         if(direction == 'D'){
-            RF.setPower(spd);
-            RB.setPower(-spd);
-            LF.setPower(-spd);
-            LB.setPower(spd);
-        } else if(direction == 'E'){
             RF.setPower(-spd);
             RB.setPower(spd);
             LF.setPower(spd);
             LB.setPower(-spd);
+        } else if(direction == 'E'){
+            RF.setPower(spd);
+            RB.setPower(-spd);
+            LF.setPower(-spd);
+            LB.setPower(spd);
         } else {
             RF.setPower(0);
             RB.setPower(0);
             LF.setPower(0);
             LB.setPower(0);
         }
-        ]
-        */
+
+
 
 
     }
+}
 
 
