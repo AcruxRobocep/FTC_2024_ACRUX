@@ -36,75 +36,51 @@ public class Autonomo_AprilTags extends LinearOpMode {
     DcMotor LB;
     DcMotor viper;
 
+
     Servo pulse;
     CRServo inTake;
 
+
     IMU imu;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
         initDevices();
         initAprilTag();
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection  = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         LF.setDirection(DcMotorSimple.Direction.REVERSE);
         RB.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        waitForStart();
         imu.resetYaw();
-        while (opModeIsActive()){
+        waitForStart();
+        readerAprilTag();
+        sla();
 
-
-            List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-
-            //telemetry.addData("# AprilTags Detected", currentDetections.size());
-            YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-            for (AprilTagDetection detection : currentDetections) {
-                if (detection.metadata != null) {
-                        if(detection.ftcPose.y > 100){
-                            move(0.5);
-                    }
-                        move(0);
-
-                } else {
-                    telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
-                    telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
-                }
-
-
-                telemetry.update();
-
-            }
-
-
-
-
-
-        }
 
 
 
 
     }
 
-    void initAprilTag(){
+    void initAprilTag() {
         aprilTag = new AprilTagProcessor.Builder()
                 .setDrawCubeProjection(true)
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES)
-    .build();
+                .build();
 
 
         VisionPortal.Builder builder = new VisionPortal.Builder();
 
-        if(USE_WEBCAM){
+        if (USE_WEBCAM) {
             builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
-        }else{
+        } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
 
@@ -114,13 +90,12 @@ public class Autonomo_AprilTags extends LinearOpMode {
     }
 
 
-
     void initDevices() {
 
-        RF  = hardwareMap.get(DcMotor.class, "M3");
-        RB  = hardwareMap.get(DcMotor.class, "M1");
-        LF  = hardwareMap.get(DcMotor.class, "M4");
-        LB  = hardwareMap.get(DcMotor.class, "M2");
+        RF = hardwareMap.get(DcMotor.class, "M3");
+        RB = hardwareMap.get(DcMotor.class, "M1");
+        LF = hardwareMap.get(DcMotor.class, "M4");
+        LB = hardwareMap.get(DcMotor.class, "M2");
         /*
         viper = hardwareMap.get(DcMotor.class,"M5");
         pulse = hardwareMap.get(Servo.class,"S1");
@@ -130,24 +105,22 @@ public class Autonomo_AprilTags extends LinearOpMode {
         imu = hardwareMap.get(IMU.class, "imu");
 
 
-
-
     }
 
-    void move(double spd){
+    void move(double spd) {
         RF.setPower(spd);
         RB.setPower(spd);
         LF.setPower(spd);
         LB.setPower(spd);
     }
 
-    void move(double spd,char direction){
-        if(direction == 'D'){
+    void move(double spd, char direction) {
+        if (direction == 'D') {
             RF.setPower(-spd);
             RB.setPower(spd);
             LF.setPower(spd);
             LB.setPower(-spd);
-        } else if(direction == 'E'){
+        } else if (direction == 'E') {
             RF.setPower(spd);
             RB.setPower(-spd);
             LF.setPower(-spd);
@@ -160,9 +133,48 @@ public class Autonomo_AprilTags extends LinearOpMode {
         }
 
 
-
-
     }
-}
+
+
+    void readerAprilTag() {
+        new Thread() {
+            @Override
+            public void run() {
+                while (opModeIsActive()) {
+                    List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+                    for (AprilTagDetection detection : currentDetections) {
+                        if (detection.metadata != null) {
+                            telemetry.addData("Distancia => ", detection.ftcPose.range);
+                            telemetry.addData("Guinada   => ", detection.ftcPose.yaw);
+                            telemetry.addData("Sla =>", detection.ftcPose.bearing);
+
+                        } else {
+                            telemetry.addLine(String.format("\n==== (ID %d) Unknown", detection.id));
+                            telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x, detection.center.y));
+                        }
+
+                        telemetry.update();
+                        }
+                    }
+                }
+            }.start();
+        }
+
+
+
+
+        void sla(){
+            new Thread(){
+                @Override
+                public void run() {
+                    while(opModeIsActive()){
+                        move(0.4);
+                    }
+
+                }
+            }.start();
+        }
+    }
+
 
 

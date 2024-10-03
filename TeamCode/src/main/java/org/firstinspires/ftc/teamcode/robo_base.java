@@ -26,6 +26,7 @@ public class robo_base extends LinearOpMode {
     int maxPositionViper = -3300;
 
     // Garra In-Take
+    Servo outTake;
     DcMotor extensor;
     CRServo inTAKE;
     Servo pulse;
@@ -48,6 +49,7 @@ public class robo_base extends LinearOpMode {
         viper  = hardwareMap.get(DcMotor.class, "M5");
         inTAKE = hardwareMap.get(CRServo.class, "S1");
         pulse = hardwareMap.get(Servo.class, "S2");
+        outTake = hardwareMap.get(Servo.class, "S3");
         //arm = hardwareMap.get(DcMotor.class, "M6");
         extensor = hardwareMap.get(DcMotor.class,"M7");
 
@@ -58,6 +60,7 @@ public class robo_base extends LinearOpMode {
         viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         waitForStart();
+        outTake.setPosition(0);
         pulse.setPosition(0);
         sleep(500);
 
@@ -134,9 +137,12 @@ public class robo_base extends LinearOpMode {
             extensor.setPower(gamepad2.right_stick_y * -0.7);
         }
 
-
-
-
+        //Out Take
+        if(gamepad2.x){
+            outTake.setPosition(1);
+        } else if (gamepad2.y) {
+            outTake.setPosition(0);
+        }
 
 
     }
