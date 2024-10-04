@@ -51,13 +51,13 @@ public class robo_base extends LinearOpMode {
         pulse = hardwareMap.get(Servo.class, "S2");
         outTake = hardwareMap.get(Servo.class, "S3");
         //arm = hardwareMap.get(DcMotor.class, "M6");
-        extensor = hardwareMap.get(DcMotor.class,"M7");
+        extensor = hardwareMap.get(DcMotor.class,"M6");
 
         /*gm.setPower(0.5);
         sleep(3000);
         gm.setPower(0);*/
 
-        viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         waitForStart();
         outTake.setPosition(0);
@@ -65,10 +65,8 @@ public class robo_base extends LinearOpMode {
         sleep(500);
 
         while(opModeIsActive()){
-            garraComandos();
-
             viperComandos();
-
+            garraComandos();
             movimentacao();
 
             /*telemetry.addData("Garra:",  gm.getCurrentPosition());
@@ -80,62 +78,39 @@ public class robo_base extends LinearOpMode {
 
     public void viperComandos() {
 
-        if(viper.getCurrentPosition() < maxPositionViper) {
-            if (gamepad2.right_trigger > 0) {
-                viper.setPower(gamepad2.right_trigger * 0.8);
-            } else if (gamepad2.left_trigger > 0) {
-                viper.setPower(gamepad2.right_trigger * -0.8);
 
-            }
-        } else {
-            viper.setPower(0);
-        }
+
+
+
+            viper.setPower(gamepad2.left_stick_y * 0.8);
 
     }
 
     public void garraComandos(){
         // In Take - Rotor
-        if(clockROTOR == 1){
+        if(gamepad2.right_bumper){
             inTAKE.setPower(1);
-            if(gamepad2.a){
-                clockROTOR = 0;
-                sleep(500);
-            }
-        } else if (clockROTOR == 0){
+        }
+        else if (gamepad2.left_bumper){
+            inTAKE.setPower(-1);
+        }
+        else {
             inTAKE.setPower(0);
-            if(gamepad2.a){
-                clockROTOR = 1;
-                sleep(500);
-                }
-        }else if (unclockROTOR == 1){
-                inTAKE.setPower(-1);
-                if(gamepad2.b){
-                    clockROTOR = 0;
-                    sleep(500);
-                }
-        } else if (unclockROTOR == 0){
-                inTAKE.setPower(0);
-                if(gamepad2.b){
-                    clockROTOR = 1;
-                    sleep(500);
-                }
         }
 
 
         // Pulso
-        if(gamepad2.dpad_up) {
+        if(gamepad2.dpad_down) {
             pulse.setPosition(1);
 
-        } else if (gamepad2.dpad_down) {
+        } else if (gamepad2.dpad_up) {
             pulse.setPosition(0);
         }
 
         // Extensor
-        if(extensor.getCurrentPosition() < maxPosition){
-            extensor.setPower(0);
-        } else {
-            extensor.setPower(gamepad2.right_stick_y * -0.7);
-        }
+
+        extensor.setPower(gamepad2.right_stick_y * 0.7);
+
 
         //Out Take
         if(gamepad2.x){
@@ -154,6 +129,8 @@ public class robo_base extends LinearOpMode {
 
         RF.setPower(-pivot + (-vertical + horinzontal));
         RB.setPower(pivot + (-vertical - horinzontal));
+
+
         LF.setPower(-pivot + (-vertical - horinzontal));
         LB.setPower(pivot + (-vertical + horinzontal));
 
