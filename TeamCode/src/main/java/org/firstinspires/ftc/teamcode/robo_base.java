@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp
 public class robo_base extends LinearOpMode {
 
+
+
     // Movimentação
     DcMotor RF;
     DcMotor RB;
@@ -32,7 +34,11 @@ public class robo_base extends LinearOpMode {
     int clockROTOR = 0;
     int unclockROTOR = 0;
 
+
+
+
     double spdGarra = 0.4;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -51,14 +57,14 @@ public class robo_base extends LinearOpMode {
         sleep(3000);
         gm.setPower(0);*/
 
-        viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         waitForStart();
-        outTake.setPosition(1);
-        pulse.setPosition(1);
+        outTake.setPosition(0);
+        pulse.setPosition(0);
         sleep(500);
 
         while(opModeIsActive()){
-            extensor.setPower(0);
             viperComandos();
             garraComandos();
             movimentacao();
@@ -67,64 +73,69 @@ public class robo_base extends LinearOpMode {
             telemetry.update();*/
 
         }
+
     }
 
     public void viperComandos() {
-        viper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        if(viper.getCurrentPosition() < maxPositionViper){
-            viper.setPower(0);
-        } else{
+
+
+
+
+
             viper.setPower(gamepad2.left_stick_y * 0.8);
-        }
-
-
 
     }
 
     public void garraComandos(){
         // In Take - Rotor
-        if(gamepad1.right_bumper){
+        if(gamepad2.right_bumper){
             inTAKE.setPower(1);
         }
-        else if (gamepad1.left_bumper){
+        else if (gamepad2.left_bumper){
             inTAKE.setPower(-1);
         }
         else {
             inTAKE.setPower(0);
         }
+
+
         // Pulso
-        if(gamepad1.a) {
+        if(gamepad2.dpad_down) {
             pulse.setPosition(1);
 
-        } else if (gamepad1.y) {
+        } else if (gamepad2.dpad_up) {
             pulse.setPosition(0);
         }
+
         // Extensor
 
-        if(gamepad1.x){
-            extensor.setPower(1);
-        } else if (gamepad1.b) {
-            extensor.setPower(-1);
-        }
-        //extensor.setPower(gamepad2.right_stick_y * 0.7);
+        extensor.setPower(gamepad2.right_stick_y * 0.7);
+
+
         //Out Take
         if(gamepad2.x){
             outTake.setPosition(1);
         } else if (gamepad2.y) {
             outTake.setPosition(0);
         }
+
+
     }
 
     public void movimentacao(){
-        horinzontal = gamepad1.left_stick_y;
-        vertical = -gamepad1.left_stick_x;
+        horinzontal = -gamepad1.left_stick_y;
+        vertical = gamepad1.left_stick_x;
         pivot = gamepad1.right_stick_x;
 
         RF.setPower(-pivot + (-vertical + horinzontal));
         RB.setPower(pivot + (-vertical - horinzontal));
 
+
         LF.setPower(-pivot + (-vertical - horinzontal));
         LB.setPower(pivot + (-vertical + horinzontal));
+
+
+
 
     }
 }
