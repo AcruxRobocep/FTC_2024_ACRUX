@@ -52,10 +52,9 @@ public class robo_base extends LinearOpMode {
         gm.setPower(0);*/
 
         viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         waitForStart();
-        outTake.setPosition(0);
-        pulse.setPosition(0);
+        outTake.setPosition(1);
+        pulse.setPosition(1);
         sleep(500);
 
         while(opModeIsActive()){
